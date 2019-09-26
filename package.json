@@ -1,0 +1,17 @@
+{
+  "name": "@katena-chain/sdk-js",
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/katena-chain/sdk-js"
+  },
+  "dependencies": {
+    "http-status-codes": "^1.3.2",
+    "moment": "^2.24.0",
+    "node-fetch": "^2.3.0",
+    "serializr": "^1.5.1",
+    "tweetnacl": "^1.0.1",
+    "url-join": "^4.0.0"
+  }
+}
