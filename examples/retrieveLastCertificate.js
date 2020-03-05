@@ -15,13 +15,13 @@ async function main() {
   // Alice wants to retrieve a certificate
 
   // Common Katena network information
-  const apiUrl = 'https://api.test.katena.transchain.io/api/v1'
+  const apiUrl = 'https://nodes.test.katena.transchain.io/api/v1'
 
   // Alice Katena network information
-  const aliceCompanyChainId = 'abcdef'
+  const aliceCompanyChainID = 'abcdef'
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyChainId)
+  const transactor = new Transactor(apiUrl, aliceCompanyChainID)
 
   // Certificate uuid Alice want to retrieve
   const certificateUuid = '2075c941-6876-405b-87d5-13791c0dc53a'
@@ -29,7 +29,7 @@ async function main() {
   try {
 
     // Retrieve a version 1 of a certificate from Katena
-    const txWrapper = await transactor.retrieveCertificate(aliceCompanyChainId, certificateUuid)
+    const txWrapper = await transactor.retrieveLastCertificate(aliceCompanyChainID, certificateUuid)
     const txData = txWrapper.getTx().getData()
     console.log('Transaction status')
     console.log(sprintf('  Code    : %s', txWrapper.getStatus().getCode().toString()))
@@ -38,15 +38,15 @@ async function main() {
     switch (txData.getType()) {
       case getTypeCertificateRawV1() : {
         console.log('CertificateRawV1')
-        console.log(' Id    : %s', txData.getId())
-        console.log(' Value : %s', txData.getValue())
+        console.log('  Id    : %s', txData.getId())
+        console.log('  Value : %s', txData.getValue())
         break
       }
       case getTypeCertificateEd25519V1() : {
         console.log('CertificateEd25519V1')
-        console.log(sprintf(' Id             : %s', txData.getId()))
-        console.log(sprintf(' Data signer    : %s', txData.getSigner().getKey().toString('base64')))
-        console.log(sprintf(' Data signature : %s', txData.getSignature().toString('base64')))
+        console.log(sprintf('  Id             : %s', txData.getId()))
+        console.log(sprintf('  Data signer    : %s', txData.getSigner().getKey().toString('base64')))
+        console.log(sprintf('  Data signature : %s', txData.getSignature().toString('base64')))
         break
       }
       default:

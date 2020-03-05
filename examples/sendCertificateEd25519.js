@@ -7,7 +7,7 @@
 
 'use strict'
 
-const { createPrivateKeyED25519FromBase64 } = require('../lib/utils/crypto')
+const { createPrivateKeyEd25519FromBase64 } = require('../lib/utils/crypto')
 const { Transactor } = require('../lib/transactor')
 const { sprintf } = require('../lib/utils/string')
 
@@ -15,18 +15,19 @@ async function main() {
   // Alice wants to certify an ed25519 signature of an off-chain data
 
   // Common Katena network information
-  const apiUrl = 'https://api.test.katena.transchain.io/api/v1'
+  const apiUrl = 'https://nodes.test.katena.transchain.io/api/v1'
   const chainID = 'katena-chain-test'
 
   // Alice Katena network information
   const aliceSignPrivateKeyBase64 = '7C67DeoLnhI6jvsp3eMksU2Z6uzj8sqZbpgwZqfIyuCZbfoPcitCiCsSp2EzCfkY52Mx58xDOyQLb1OhC7cL5A=='
-  const aliceCompanyChainId = 'abcdef'
-  const aliceSignPrivateKey = createPrivateKeyED25519FromBase64(aliceSignPrivateKeyBase64)
+  const aliceCompanyChainID = 'abcdef'
+  const aliceSignPrivateKey = createPrivateKeyEd25519FromBase64(aliceSignPrivateKeyBase64)
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyChainId, chainID, aliceSignPrivateKey)
+  const transactor = new Transactor(apiUrl, aliceCompanyChainID, chainID, aliceSignPrivateKey)
 
   try {
+
     // Off chain information Alice want to send
     const certificateUuid = '2075c941-6876-405b-87d5-13791c0dc53a'
     const dataSignature = Buffer.from('off_chain_data_to_sign_from_js', 'utf-8')

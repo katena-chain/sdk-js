@@ -10,18 +10,19 @@
 const { createPrivateKeyX25519FromBase64 } = require('../lib/utils/crypto')
 const { Transactor } = require('../lib/transactor')
 const { sprintf } = require('../lib/utils/string')
+const { DEFAULT_PER_PAGE_PARAM } = require('../lib/utils/common')
 
 async function main() {
   // Bob wants to read a nacl box secret from Alice to decrypt an off-chain data
 
   // Common Katena network information
-  const apiUrl = 'https://api.test.katena.transchain.io/api/v1'
+  const apiUrl = 'https://nodes.test.katena.transchain.io/api/v1'
 
   // Alice Katena network information
-  const aliceCompanyChainId = 'abcdef'
+  const aliceCompanyChainID = 'abcdef'
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyChainId)
+  const transactor = new Transactor(apiUrl, aliceCompanyChainID)
 
   // Nacl box information
   const bobCryptPrivateKeyBase64 = 'quGBP8awD/J3hjSvwGD/sZRcMDks8DPz9Vw0HD4+zecqJP0ojBoc4wQtyq08ywxUksTkdz0/rQNkOsEZBwqWTw=='
@@ -33,7 +34,7 @@ async function main() {
   try {
 
     // Retrieve version 1 of secrets from Katena blockchain
-    const txWrappers = await transactor.retrieveSecrets(aliceCompanyChainId, secretUuid)
+    const txWrappers = await transactor.retrieveSecrets(aliceCompanyChainID, secretUuid, 2, DEFAULT_PER_PAGE_PARAM)
 
     txWrappers.getTxs().forEach(txWrapper => {
       const txData = txWrapper.getTx().getData()
@@ -42,10 +43,10 @@ async function main() {
       console.log(sprintf('  Message : %s', txWrapper.getStatus().getMessage()))
 
       console.log('SecretNaclBoxV1')
-      console.log(sprintf('  Id           : %s', txData.getId()))
-      console.log(sprintf('  Data sender  : %s', txData.getSender().getKey().toString('base64')))
-      console.log(sprintf('  Data nonce   : %s', txData.getNonce().toString('base64')))
-      console.log(sprintf('  Data content : %s', txData.getContent().toString('base64')))
+      console.log(sprintf('  Id                : %s', txData.getId()))
+      console.log(sprintf('  Data sender       : %s', txData.getSender().getKey().toString('base64')))
+      console.log(sprintf('  Data nonce        : %s', txData.getNonce().toString('base64')))
+      console.log(sprintf('  Data content      : %s', txData.getContent().toString('base64')))
 
       // Bob will use its private key and the sender's public key (needs to be Alice's) to decrypt a message
       let decryptedContent = bobCryptPrivateKey.open(
