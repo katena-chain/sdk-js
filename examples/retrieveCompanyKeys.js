@@ -18,7 +18,7 @@ async function main() {
   const apiUrl = 'https://nodes.test.katena.transchain.io/api/v1'
 
   // Alice Katena network information
-  const aliceCompanyChainID = 'abcdef'
+  const aliceCompanyBcid = 'abcdef'
 
   // Create a Katena API helper
   const transactor = new Transactor(apiUrl)
@@ -26,7 +26,7 @@ async function main() {
   try {
 
     // Retrieve the keys from Katena
-    const keys = await transactor.retrieveCompanyKeys(aliceCompanyChainID, 1, DEFAULT_PER_PAGE_PARAM)
+    const keys = await transactor.retrieveCompanyKeys(aliceCompanyBcid, 1, DEFAULT_PER_PAGE_PARAM)
     keys.forEach(key => {
 
       console.log('KeyV1')

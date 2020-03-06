@@ -19,10 +19,10 @@ async function main() {
   const apiUrl = 'https://nodes.test.katena.transchain.io/api/v1'
 
   // Alice Katena network information
-  const aliceCompanyChainID = 'abcdef'
+  const aliceCompanyBcid = 'abcdef'
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyChainID)
+  const transactor = new Transactor(apiUrl, aliceCompanyBcid)
 
   // Nacl box information
   const bobCryptPrivateKeyBase64 = 'quGBP8awD/J3hjSvwGD/sZRcMDks8DPz9Vw0HD4+zecqJP0ojBoc4wQtyq08ywxUksTkdz0/rQNkOsEZBwqWTw=='
@@ -34,7 +34,7 @@ async function main() {
   try {
 
     // Retrieve version 1 of secrets from Katena blockchain
-    const txWrappers = await transactor.retrieveSecrets(aliceCompanyChainID, secretUuid, 2, DEFAULT_PER_PAGE_PARAM)
+    const txWrappers = await transactor.retrieveSecrets(aliceCompanyBcid, secretUuid, 1, DEFAULT_PER_PAGE_PARAM)
 
     txWrappers.getTxs().forEach(txWrapper => {
       const txData = txWrapper.getTx().getData()

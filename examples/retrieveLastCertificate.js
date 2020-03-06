@@ -18,10 +18,10 @@ async function main() {
   const apiUrl = 'https://nodes.test.katena.transchain.io/api/v1'
 
   // Alice Katena network information
-  const aliceCompanyChainID = 'abcdef'
+  const aliceCompanyBcid = 'abcdef'
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyChainID)
+  const transactor = new Transactor(apiUrl, aliceCompanyBcid)
 
   // Certificate uuid Alice want to retrieve
   const certificateUuid = '2075c941-6876-405b-87d5-13791c0dc53a'
@@ -29,7 +29,7 @@ async function main() {
   try {
 
     // Retrieve a version 1 of a certificate from Katena
-    const txWrapper = await transactor.retrieveLastCertificate(aliceCompanyChainID, certificateUuid)
+    const txWrapper = await transactor.retrieveLastCertificate(aliceCompanyBcid, certificateUuid)
     const txData = txWrapper.getTx().getData()
     console.log('Transaction status')
     console.log(sprintf('  Code    : %s', txWrapper.getStatus().getCode().toString()))

@@ -20,11 +20,11 @@ async function main() {
 
   // Alice Katena network information
   const aliceSignPrivateKeyBase64 = '7C67DeoLnhI6jvsp3eMksU2Z6uzj8sqZbpgwZqfIyuCZbfoPcitCiCsSp2EzCfkY52Mx58xDOyQLb1OhC7cL5A=='
-  const aliceCompanyChainID = 'abcdef'
+  const aliceCompanyBcid = 'abcdef'
   const aliceSignPrivateKey = createPrivateKeyEd25519FromBase64(aliceSignPrivateKeyBase64)
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyChainID, chainID, aliceSignPrivateKey)
+  const transactor = new Transactor(apiUrl, aliceCompanyBcid, chainID, aliceSignPrivateKey)
 
   // Information Alice wants to send
   const keyRevokeUuid = '2075c941-6876-405b-87d5-13791c0dc53a'
