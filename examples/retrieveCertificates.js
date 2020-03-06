@@ -22,7 +22,7 @@ async function main() {
   const aliceCompanyBcid = 'abcdef'
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyBcid)
+  const transactor = new Transactor(apiUrl)
 
   // Certificates uuid Alice wants to retrieve
   const certificateUuid = '2075c941-6876-405b-87d5-13791c0dc53a'
