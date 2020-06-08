@@ -9,35 +9,42 @@
 
 const { createPrivateKeyEd25519FromBase64 } = require('../lib/utils/crypto')
 const { Transactor } = require('../lib/transactor')
-const { sprintf } = require('../lib/utils/string')
+const { TxSigner } = require('../lib/entity/txSigner')
+const { concatFqId } = require('../lib/utils/common')
+const { printlnJson } = require('./common/log')
+const { defaultSettings } = require('./common/settings')
 
 async function main() {
   // Alice wants to certify raw off-chain information
 
+  // Load default configuration
+  const settings = defaultSettings()
+
   // Common Katena network information
-  const apiUrl = 'https://nodes.test.katena.transchain.io/api/v1'
-  const chainID = 'katena-chain-test'
+  const apiUrl = settings.apiUrl
+  const chainID = settings.chainId
 
   // Alice Katena network information
-  const aliceSignPrivateKeyBase64 = '7C67DeoLnhI6jvsp3eMksU2Z6uzj8sqZbpgwZqfIyuCZbfoPcitCiCsSp2EzCfkY52Mx58xDOyQLb1OhC7cL5A=='
-  const aliceCompanyBcid = 'abcdef'
-  const aliceSignPrivateKey = createPrivateKeyEd25519FromBase64(aliceSignPrivateKeyBase64)
+  const aliceCompanyBcId = settings.company.bcId
+  const aliceSignKeyInfo = settings.company.ed25519Keys.alice
+  const aliceSignPrivateKey = createPrivateKeyEd25519FromBase64(aliceSignKeyInfo.privateKeyStr)
+  const aliceSignPrivateKeyId = aliceSignKeyInfo.id
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyBcid, chainID, aliceSignPrivateKey)
+  const txSigner = new TxSigner(concatFqId(aliceCompanyBcId, aliceSignPrivateKeyId), aliceSignPrivateKey)
+  const transactor = new Transactor(apiUrl, chainID, txSigner)
 
   // Off chain information you want to send
-  const certificateUuid = '2075c941-6876-405b-87d5-13791c0dc53a'
+  const certificateId = settings.certificateId
   const dataRawSignature = Buffer.from('off_chain_data_raw_signature_from_js', 'utf-8')
 
   try {
 
-    // Send a version 1 of a certificate on Katena blockchain
-    const txStatus = await transactor.sendCertificateRawV1(certificateUuid, dataRawSignature)
+    // Send a version 1 of a certificate on Katena
+    const txResult = await transactor.sendCertificateRawV1Tx(certificateId, dataRawSignature)
 
-    console.log('Transaction status')
-    console.log(sprintf('  Code    : %s', txStatus.getCode().toString()))
-    console.log(sprintf('  Message : %s', txStatus.getMessage()))
+    console.log('Result :')
+    printlnJson(txResult)
 
   } catch (e) {
     if (e.name === 'ApiError') {

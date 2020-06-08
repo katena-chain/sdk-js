@@ -7,38 +7,43 @@
 
 'use strict'
 
-const { createPrivateKeyEd25519FromBase64, createPublicKeyEd25519FromBase64 } = require('../lib/utils/crypto')
+const { createPrivateKeyEd25519FromBase64 } = require('../lib/utils/crypto')
 const { Transactor } = require('../lib/transactor')
-const { sprintf } = require('../lib/utils/string')
+const { TxSigner } = require('../lib/entity/txSigner')
+const { concatFqId } = require('../lib/utils/common')
+const { printlnJson } = require('./common/log')
+const { defaultSettings } = require('./common/settings')
 
 async function main() {
   // Alice wants to revoke a key for its company
 
+  // Load default configuration
+  const settings = defaultSettings()
+
   // Common Katena network information
-  const apiUrl = 'https://nodes.test.katena.transchain.io/api/v1'
-  const chainID = 'katena-chain-test'
+  const apiUrl = settings.apiUrl
+  const chainID = settings.chainId
 
   // Alice Katena network information
-  const aliceSignPrivateKeyBase64 = '7C67DeoLnhI6jvsp3eMksU2Z6uzj8sqZbpgwZqfIyuCZbfoPcitCiCsSp2EzCfkY52Mx58xDOyQLb1OhC7cL5A=='
-  const aliceCompanyBcid = 'abcdef'
-  const aliceSignPrivateKey = createPrivateKeyEd25519FromBase64(aliceSignPrivateKeyBase64)
+  const aliceCompanyBcId = settings.company.bcId
+  const aliceSignKeyInfo = settings.company.ed25519Keys.alice
+  const aliceSignPrivateKey = createPrivateKeyEd25519FromBase64(aliceSignKeyInfo.privateKeyStr)
+  const aliceSignPrivateKeyId = aliceSignKeyInfo.id
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyBcid, chainID, aliceSignPrivateKey)
+  const txSigner = new TxSigner(concatFqId(aliceCompanyBcId, aliceSignPrivateKeyId), aliceSignPrivateKey)
+  const transactor = new Transactor(apiUrl, chainID, txSigner)
 
   // Information Alice wants to send
-  const keyRevokeUuid = '2075c941-6876-405b-87d5-13791c0dc53a'
-  const publicKeyBase64 = 'gaKih+STp93wMuKmw5tF5NlQvOlrGsahpSmpr/KwOiw='
-  const publicKey = createPublicKeyEd25519FromBase64(publicKeyBase64)
+  const keyId = settings.keyId
 
   try {
 
     // Send a version 1 of a key revoke on Katena
-    const txStatus = await transactor.sendKeyRevokeV1(keyRevokeUuid, publicKey)
+    const txResult = await transactor.sendKeyRevokeV1Tx(keyId)
 
-    console.log('Transaction status')
-    console.log(sprintf('  Code    : %s', txStatus.getCode().toString()))
-    console.log(sprintf('  Message : %s', txStatus.getMessage()))
+    console.log('Result :')
+    printlnJson(txResult)
 
   } catch (e) {
     if (e.name === 'ApiError') {

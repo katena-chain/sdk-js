@@ -13,31 +13,39 @@ const {
   createPrivateKeyX25519FromBase64,
 } = require('../lib/utils/crypto')
 const { Transactor } = require('../lib/transactor')
-const { sprintf } = require('../lib/utils/string')
+const { TxSigner } = require('../lib/entity/txSigner')
+const { concatFqId } = require('../lib/utils/common')
+const { printlnJson } = require('./common/log')
+const { defaultSettings } = require('./common/settings')
 
 async function main() {
   // Alice wants to send a nacl box secret to Bob to encrypt an off-chain data
 
+  // Load default configuration
+  const settings = defaultSettings()
+
   // Common Katena network information
-  const apiUrl = 'https://nodes.test.katena.transchain.io/api/v1'
-  const chainID = 'katena-chain-test'
+  const apiUrl = settings.apiUrl
+  const chainID = settings.chainId
 
   // Alice Katena network information
-  const aliceSignPrivateKeyBase64 = '7C67DeoLnhI6jvsp3eMksU2Z6uzj8sqZbpgwZqfIyuCZbfoPcitCiCsSp2EzCfkY52Mx58xDOyQLb1OhC7cL5A=='
-  const aliceCompanyBcid = 'abcdef'
-  const aliceSignPrivateKey = createPrivateKeyEd25519FromBase64(aliceSignPrivateKeyBase64)
+  const aliceCompanyBcId = settings.company.bcId
+  const aliceSignKeyInfo = settings.company.ed25519Keys.alice
+  const aliceSignPrivateKey = createPrivateKeyEd25519FromBase64(aliceSignKeyInfo.privateKeyStr)
+  const aliceSignPrivateKeyId = aliceSignKeyInfo.id
 
   // Nacl box information
-  const aliceCryptPrivateKeyBase64 = 'nyCzhimWnTQifh6ucXLuJwOz3RgiBpo33LcX1NjMAsP1ZkQcdlDq64lTwxaDx0lq6LCQAUeYywyMUtfsvTUEeQ=='
-  const aliceCryptPrivateKey = createPrivateKeyX25519FromBase64(aliceCryptPrivateKeyBase64)
-  const bobCryptPublicKeyBase64 = 'KiT9KIwaHOMELcqtPMsMVJLE5Hc9P60DZDrBGQcKlk8='
-  const bobCryptPublicKey = createPublicKeyX25519FromBase64(bobCryptPublicKeyBase64)
+  const aliceCryptKeyInfo = settings.offChain.x25519Keys.alice
+  const aliceCryptPrivateKey = createPrivateKeyX25519FromBase64(aliceCryptKeyInfo.privateKeyStr)
+  const bobCryptKeyInfo = settings.offChain.x25519Keys.bob
+  const bobCryptPublicKey = createPublicKeyX25519FromBase64(bobCryptKeyInfo.publicKeyStr)
 
   // Create a Katena API helper
-  const transactor = new Transactor(apiUrl, aliceCompanyBcid, chainID, aliceSignPrivateKey)
+  const txSigner = new TxSigner(concatFqId(aliceCompanyBcId, aliceSignPrivateKeyId), aliceSignPrivateKey)
+  const transactor = new Transactor(apiUrl, chainID, txSigner)
 
   // Off-chain information Alice wants to send
-  const certificateUuid = '2075c941-6876-405b-87d5-13791c0dc53a'
+  const secretId = settings.secretId
   const content = Buffer.from('off_chain_secret_to_crypt_from_js')
 
   try {
@@ -46,11 +54,10 @@ async function main() {
     const encryptedInfo = aliceCryptPrivateKey.seal(content, bobCryptPublicKey)
 
     // Send a version 1 of a secret nacl box on Katena
-    const txStatus = await transactor.sendSecretNaclBoxV1(certificateUuid, aliceCryptPrivateKey.getPublicKey(), encryptedInfo.nonce, encryptedInfo.encryptedMessage)
+    const txResult = await transactor.sendSecretNaclBoxV1Tx(secretId, aliceCryptPrivateKey.getPublicKey(), encryptedInfo.nonce, encryptedInfo.encryptedMessage)
 
-    console.log('Transaction status')
-    console.log(sprintf('  Code    : %s', txStatus.getCode().toString()))
-    console.log(sprintf('  Message : %s', txStatus.getMessage()))
+    console.log('Result :')
+    printlnJson(txResult)
 
   } catch (e) {
     if (e.name === 'ApiError') {

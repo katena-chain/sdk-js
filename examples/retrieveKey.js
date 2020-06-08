@@ -13,7 +13,7 @@ const { printlnJson } = require('./common/log')
 const { defaultSettings } = require('./common/settings')
 
 async function main() {
-  // Alice wants to retrieve the keys of its company
+  // Alice wants to retrieve a key and its related txs
 
   // Load default configuration
   const settings = defaultSettings()
@@ -27,13 +27,28 @@ async function main() {
   // Create a Katena API helper
   const transactor = new Transactor(apiUrl)
 
+  // Key id Alice wants to retrieve
+  const keyId = settings.keyId
+
   try {
 
-    // Retrieve the keys from Katena
-    const keys = await transactor.retrieveCompanyKeys(aliceCompanyBcId, 1, DEFAULT_PER_PAGE_PARAM)
+    // Retrieve txs related to the key fqid
+    const txResults = await transactor.retrieveKeyTxs(aliceCompanyBcId, keyId, 1, DEFAULT_PER_PAGE_PARAM)
 
-    console.log('Keys list :')
-    printlnJson(keys)
+    console.log('Tx list :')
+    printlnJson(txResults)
+
+    // Retrieve the last tx related to the key fqid
+    const txResult = await transactor.retrieveLastKeyTx(aliceCompanyBcId, keyId)
+
+    console.log('Last Tx :')
+    printlnJson(txResult)
+
+    // Retrieve the last state of a key with that fqid
+    const key = await transactor.retrieveKey(aliceCompanyBcId, keyId)
+
+    console.log('Key :')
+    printlnJson(key)
 
   } catch (e) {
     if (e.name === 'ApiError') {
