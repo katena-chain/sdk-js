@@ -36,12 +36,14 @@ async function main() {
 
   // Off chain information Alice want to send
   const certificateId = settings.certificateId
-  const dataSignature = aliceSignPrivateKey.sign(Buffer.from('off_chain_data_to_sign_from_js', 'utf-8'))
+  const davidSignKeyInfo = settings.offChain.ed25519Keys.david
+  const davidSignPrivateKey = createPrivateKeyEd25519FromBase64(davidSignKeyInfo.privateKeyStr)
+  const dataSignature = davidSignPrivateKey.sign(Buffer.from('off_chain_data_to_sign_from_js', 'utf-8'))
 
   try {
 
     // Send a version 1 of a certificate on Katena
-    const txResult = await transactor.sendCertificateEd25519V1Tx(certificateId, aliceSignPrivateKey.getPublicKey(), dataSignature)
+    const txResult = await transactor.sendCertificateEd25519V1Tx(certificateId, davidSignPrivateKey.getPublicKey(), dataSignature)
 
     console.log('Result :')
     printlnJson(txResult)
