@@ -8,7 +8,6 @@
 'use strict'
 
 const { Transactor } = require('../lib/transactor')
-const { DEFAULT_PER_PAGE_PARAM } = require('../lib/utils/common')
 const { printlnJson } = require('./common/log')
 const { defaultSettings } = require('./common/settings')
 
@@ -30,7 +29,7 @@ async function main() {
   try {
 
     // Retrieve the keys from Katena
-    const keys = await transactor.retrieveCompanyKeys(aliceCompanyBcId, 1, DEFAULT_PER_PAGE_PARAM)
+    const keys = await transactor.retrieveCompanyKeys(aliceCompanyBcId, 1, settings.txPerPage)
 
     console.log('Keys list :')
     printlnJson(keys)

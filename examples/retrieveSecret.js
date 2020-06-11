@@ -10,7 +10,6 @@
 const { createPrivateKeyX25519FromBase64 } = require('../lib/utils/crypto')
 const { Transactor } = require('../lib/transactor')
 const { sprintf } = require('../lib/utils/string')
-const { DEFAULT_PER_PAGE_PARAM } = require('../lib/utils/common')
 const { printlnJson } = require('./common/log')
 const { defaultSettings } = require('./common/settings')
 
@@ -39,7 +38,7 @@ async function main() {
   try {
 
     // Retrieve txs related to the secret fqid
-    const txResults = await transactor.retrieveSecretTxs(aliceCompanyBcId, secretId, 1, DEFAULT_PER_PAGE_PARAM)
+    const txResults = await transactor.retrieveSecretTxs(aliceCompanyBcId, secretId, 1, settings.txPerPage)
 
     console.log('Tx list :')
     printlnJson(txResults)

@@ -8,7 +8,6 @@
 'use strict'
 
 const { Transactor } = require('../lib/transactor')
-const { DEFAULT_PER_PAGE_PARAM } = require('../lib/utils/common')
 const { printlnJson } = require('./common/log')
 const { defaultSettings } = require('./common/settings')
 
@@ -33,7 +32,7 @@ async function main() {
   try {
 
     // Retrieve txs related to the certificate fqid
-    const txResults = await transactor.retrieveCertificateTxs(aliceCompanyBcId, certificateId, 1, DEFAULT_PER_PAGE_PARAM)
+    const txResults = await transactor.retrieveCertificateTxs(aliceCompanyBcId, certificateId, 1, settings.txPerPage)
 
     console.log('Tx list :')
     printlnJson(txResults)
