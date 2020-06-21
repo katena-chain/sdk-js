@@ -43,6 +43,12 @@ async function main() {
     console.log('Last Tx :')
     printlnJson(txResult)
 
+    // Retrieve the last state of a certificate with that fqid
+    const certificate = await transactor.retrieveCertificate(aliceCompanyBcId, certificateId)
+
+    console.log('Certificate :')
+    printlnJson(certificate)
+
   } catch (e) {
     if (e.name === 'ApiError') {
       console.log(e.toString())

@@ -49,18 +49,23 @@ async function main() {
     console.log('Last Tx :')
     printlnJson(txResult)
 
-    const txData = txResult.getTx().getData()
+    // Retrieve the last state of a secret with that fqid
+    const secret = await transactor.retrieveSecret(aliceCompanyBcId, secretId)
+
+    console.log('Secret :')
+    printlnJson(secret)
+
     // Bob will use its private key and the sender's public key (needs to be Alice's) to decrypt a message
     let decryptedContent = bobCryptPrivateKey.open(
-      txData.getContent(),
-      txData.getSender(),
-      txData.getNonce(),
+      secret.getContent(),
+      secret.getSender(),
+      secret.getNonce(),
     ).toString('utf8')
 
     if (decryptedContent === '') {
       decryptedContent = 'Unable to decrypt'
     }
-    console.log(sprintf('Decrypted content for last Tx : %s', decryptedContent))
+    console.log(sprintf('Decrypted content : %s', decryptedContent))
 
   } catch (e) {
     if (e.name === 'ApiError') {

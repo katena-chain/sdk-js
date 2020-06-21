@@ -9,10 +9,17 @@
 
 const { serialize } = require('serializr')
 const { sprintf } = require('../../lib/utils/string')
+const { serializeTxData } = require('../../lib/serializer/txData')
 
 function printlnJson(data) {
-  const encodedData = JSON.stringify(serialize(data),null, 2)
-  console.log(sprintf('%s\n', encodedData))
+  let encodedData
+  if (typeof data.getType === 'function' && typeof data.getNamespace === 'function' && typeof data.getStateIds === 'function') {
+    encodedData = serializeTxData(data)
+  } else {
+    encodedData = serialize(data)
+  }
+  const jsonStr = JSON.stringify(encodedData,null, 2)
+  console.log(sprintf('%s\n', jsonStr))
 }
 
 module.exports = {
